@@ -1,0 +1,8 @@
+services:
+  fastapi-audio-app:
+    build: .
+    ports:
+      - "5225:8000"  # Maps host port 5225 to container port 8000
+    volumes:
+      - .:/app
+    restart: unless-stopped
