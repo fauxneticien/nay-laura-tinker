@@ -16,4 +16,5 @@ dist/
 .idea
 
 public/*
+!public/.gitkeep
 !public/media/.gitkeep
