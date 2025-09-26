@@ -2,7 +2,7 @@ import { useRef, useState, useMemo, useEffect } from 'react'
 import { useWavesurfer } from '@wavesurfer/react'
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.esm.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
-
+import jsonData from "../public/barackobamaunitednations65ARXE.json"
 
 import './App.css';
 
@@ -16,6 +16,7 @@ const App = () => {
     container: containerRef,
     url: './barackobamaunitednations65ARXE.mp3',
     waveColor: 'purple',
+    progressColor: 'purple',
     height: 100,
     plugins: plugins,
     dragToSeek: true,
@@ -30,11 +31,17 @@ const App = () => {
 
   useEffect(() => {
     if (isReady) {
-      regionsPlugin.addRegion({
-        content: `TestRegion`,
-        start: wavesurfer.getCurrentTime(),
-        end: wavesurfer.getCurrentTime() + 300,
+      jsonData.timestamps.forEach((time) => {
+        regionsPlugin.addRegion({
+          //content: `TestRegion`,
+          start: time.start,//wavesurfer.getCurrentTime(),
+          end: time.end,//wavesurfer.getCurrentTime() + 300,
+          drag: false,
+          resize: true,
+          color: "rgba(0, 255, 0, 0.1)"
+        })
       })
+
     }
   }, [isReady])
 
