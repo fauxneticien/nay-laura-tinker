@@ -14,3 +14,7 @@ dist/
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+public/*
+!public/.gitkeep
+!public/media/.gitkeep
