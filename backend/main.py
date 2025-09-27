@@ -2,9 +2,19 @@ from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydub import AudioSegment
 import io
-import time
+import os
+
+import torch
+
+torch.set_num_threads(1)
+
+vad_model, (get_speech_timestamps, _, read_audio, _, _) = torch.hub.load(
+    repo_or_dir='/silero-vad',
+    source='local',
+    model='silero_vad',
+    verbose=False
+)
 
 app = FastAPI()
 
@@ -25,20 +35,28 @@ async def upload_audio(file: UploadFile = File(...)):
     # Read file into memory
     contents = await file.read()
 
+    file_ext  = os.path.splitext(file.filename)[1]  # e.g., '.mp3'
+    file_path = "/tmp/audio" + file_ext
+
+    # Write out to disk, since read_audio() expects a file path
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
     try:
-        # Use pydub to load audio
-        audio = AudioSegment.from_file(io.BytesIO(contents))
-        duration_seconds = round(len(audio) / 1000, 2)
-        frame_rate = audio.frame_rate
-        channels = audio.channels
-        sample_width = audio.sample_width
+        audio = read_audio(file_path)
+
+        timestamps = get_speech_timestamps(
+            audio,
+            vad_model,
+            min_speech_duration_ms=500,
+            max_speech_duration_s=20,
+            min_silence_duration_ms=750,
+            # Important, use return_seconds=True for post-vad merge function
+            return_seconds=True
+        )
 
         return {
-            "filename": file.filename,
-            "duration_seconds": duration_seconds,
-            "frame_rate": frame_rate,
-            "channels": channels,
-            "sample_width": sample_width
+            "timestamps": timestamps
         }
 
     except Exception as e:

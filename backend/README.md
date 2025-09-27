@@ -4,10 +4,9 @@
 
 ```
 # Assuming docker and docker compose installed
-docker compose up --build
+# (use --build to rebuild image after a recent pull)
 
-# or, use no-cache after a recent pull (in case image specs have changed)
-docker compose up --build --no-cache
+docker compose up --build
 ```
 
 ## API
